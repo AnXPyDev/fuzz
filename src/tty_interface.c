@@ -141,7 +141,8 @@ static void action_emit(tty_interface_t *state) {
 	tty_close(state->tty);
 
 	const char *selection = choices_get(state->choices, state->choices->selection);
-	if (selection) {
+
+	if (selection && !state->options->query_only) {
 		/* output the selected result */
 		printf("%s\n", selection);
 	} else {
@@ -237,8 +238,16 @@ static void action_pagedown(tty_interface_t *state) {
 
 static void action_autocomplete(tty_interface_t *state) {
 	update_state(state);
+	
 	const char *current_selection = choices_get(state->choices, state->choices->selection);
 	if (current_selection) {
+	
+		
+		if (strcmp(current_selection, state->search) == 0) {
+			action_emit(state);
+			return;
+		}
+
 		strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
 		state->cursor = strlen(state->search);
 	}
@@ -289,7 +298,8 @@ typedef struct {
 
 #define KEY_CTRL(key) ((const char[]){((key) - ('@')), '\0'})
 
-static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC */
+static const keybinding_t keybindings[] = {
+					   {"\x1b", action_exit},       /* ESC */
 					   {"\x7f", action_del_char},	/* DEL */
 
 					   {KEY_CTRL('H'), action_del_char}, /* Backspace (C-H) */

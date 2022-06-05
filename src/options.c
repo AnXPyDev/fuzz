@@ -10,7 +10,7 @@
 
 static const char *usage_str =
     ""
-    "Usage: fzy [OPTION]...\n"
+    "Usage: fuzz [OPTION]...\n"
     " -l, --lines=LINES        Specify how many lines of results to show (default 10)\n"
     " -p, --prompt=PROMPT      Input prompt (default '> ')\n"
     " -q, --query=QUERY        Use QUERY as the initial search string\n"
@@ -20,8 +20,9 @@ static const char *usage_str =
     " -0, --read-null          Read input delimited by ASCII NUL characters\n"
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
     " -i, --show-info          Show selection info line\n"
-    " -h, --help     Display this help and exit\n"
-    " -v, --version  Output version information and exit\n";
+    " -h, --help               Display this help and exit\n"
+    " -v, --version            Output version information and exit\n"
+    " -x, --query-only         Do not print match, only user input\n";
 
 static void usage(const char *argv0) {
 	fprintf(stderr, usage_str, argv0);
@@ -39,6 +40,7 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"workers", required_argument, NULL, 'j'},
 				   {"show-info", no_argument, NULL, 'i'},
 				   {"help", no_argument, NULL, 'h'},
+				   {"query-only", no_argument, NULL, 'x'},
 				   {NULL, 0, NULL, 0}};
 
 void options_init(options_t *options) {
@@ -54,16 +56,17 @@ void options_init(options_t *options) {
 	options->workers         = DEFAULT_WORKERS;
 	options->input_delimiter = '\n';
 	options->show_info       = DEFAULT_SHOW_INFO;
+	options->query_only      = DEFAULT_QUERY_ONLY;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
 	options_init(options);
 
 	int c;
-	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:i", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:i:x", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
-				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
+				printf("%s " VERSION " 2022 Not my problem\n", argv[0]);
 				exit(EXIT_SUCCESS);
 			case 's':
 				options->show_scores = 1;
@@ -113,6 +116,9 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 			} break;
 			case 'i':
 				options->show_info = 1;
+				break;
+			case 'x':
+				options->query_only = 1;
 				break;
 			case 'h':
 			default:
