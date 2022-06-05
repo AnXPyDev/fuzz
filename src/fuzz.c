@@ -41,8 +41,10 @@ int main(int argc, char *argv[]) {
 	} else {
 		/* interactive */
 
-		if (isatty(STDIN_FILENO))
-			choices_fread(&choices, stdin, options.input_delimiter);
+		if (isatty(STDIN_FILENO)) {
+			exit(EXIT_FAILURE);
+			//choices_fread(&choices, stdin, options.input_delimiter);
+		}
 
 		tty_t tty;
 		tty_init(&tty, options.tty_filename);
@@ -60,6 +62,7 @@ int main(int argc, char *argv[]) {
 		if (options.num_lines + num_lines_adjustment > tty_getheight(&tty))
 			options.num_lines = tty_getheight(&tty) - num_lines_adjustment;
 
+	
 		tty_interface_t tty_interface;
 		tty_interface_init(&tty_interface, &tty, &choices, &options);
 		ret = tty_interface_run(&tty_interface);
